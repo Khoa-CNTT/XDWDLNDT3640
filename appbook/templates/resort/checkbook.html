@@ -1,0 +1,43 @@
+{% extends "resort/base.html" %}
+
+{% block checkbook %}
+<h1>Danh sách đặt phòng đang chờ xác nhận</h1>
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if confirmed_bookings %}
+    {% for booking in confirmed_bookings %}
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            <p><strong>ID thanh toán:</strong> {{ booking.payment_id }}</p>
+            <p><strong>Tên khách hàng:</strong> {{ booking.user.username }}</p>
+            <p><strong>Ngày đến:</strong> {{ booking.start_date }}</p>
+            <p><strong>Ngày đi:</strong> {{ booking.end_date }}</p>
+            <p><strong>Số phòng đặt:</strong> {{ booking.num_rooms }}</p>
+            <p><strong>Tổng tiền:</strong> {{ booking.total_price|floatformat:0 }}K VNĐ</p>
+
+           <!-- Nút hủy đặt phòng -->
+           <form method="POST" action="{% url 'cancel_booking' booking.payment_id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded" onclick="return confirm('Bạn có chắc chắn muốn hủy đặt phòng này không?')">Hủy</button>
+        </form>
+        
+        
+
+        <!-- Nút xác nhận -->
+        <form method="POST" action="{% url 'confirm_booking' booking.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded">Xác nhận</button>
+        </form>
+        
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Chưa có đơn đặt phòng nào được xác nhận.</p>
+{% endif %}
+
+{% endblock %}

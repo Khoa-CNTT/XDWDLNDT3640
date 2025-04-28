@@ -1,0 +1,28 @@
+{% extends "user/base.html" %}
+{% load static %}
+
+{% block checkbook %}
+<h1>Danh sách đơn đặt phòng của bạn</h1>
+
+{% if bookings %}
+    {% for booking in bookings %}
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            <p><strong>ID thanh toán:</strong> {{ booking.payment_id }}</p>
+            <p><strong>Resort:</strong> {{ booking.resort.name }}</p>
+            <p><strong>Ngày đến:</strong> {{ booking.start_date }}</p>
+            <p><strong>Ngày đi:</strong> {{ booking.end_date }}</p>
+            <p><strong>Số phòng:</strong> {{ booking.num_rooms }}</p>
+            <p><strong>Tổng tiền:</strong> {{ booking.total_price|floatformat:0 }}K VNĐ</p>
+
+            <!-- Nút hủy đặt phòng -->
+            <form method="POST" action="{% url 'cancel_user_booking' booking.payment_id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn đặt phòng này không?')">Hủy</button>
+            </form>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Bạn chưa có đơn đặt phòng nào.</p>
+{% endif %}
+
+{% endblock checkbook %}

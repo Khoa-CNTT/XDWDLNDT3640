@@ -1,0 +1,15 @@
+{% extends "user/base.html" %}
+{% block notification %}
+<h1>Thông báo đặt phòng</h1>
+
+{% if notifications %}
+    {% for notification in notifications %}
+        <p>{{ notification.message }}</p>
+        <p style="font-size: 12px; color: gray;">{{ notification.created_at }}</p>
+    {% endfor %}
+{% else %}
+    <p>Không có thông báo mới.</p>
+{% endif %}
+
+<a href="{% url 'user_home' %}" class="btn btn-primary">Quay lại trang chính</a>
+{% endblock notification%}

@@ -1,0 +1,47 @@
+{% extends "user/base.html" %}
+{% load static %}  <!-- Load static để dùng file CSS & JS -->
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/chat.css' %}">
+</head>
+
+{% block chat %}
+<h1>Trò chuyện với quản lý {{ manager.username }}</h1>
+
+<!-- Popup hiển thị ảnh lớn -->
+<div id="imageModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="fullImage">
+</div>
+
+<div style="border: 1px solid #ddd; padding: 10px; height: 400px; overflow-y: scroll; display: flex; flex-direction: column;">
+    {% for message in messages %}
+        <div style="display: flex; justify-content: {% if message.sender == request.user %}flex-end{% else %}flex-start{% endif %}; margin-bottom: 10px;">
+            <p style="padding: 10px; border-radius: 8px; max-width: 60%;
+                {% if message.sender == request.user %}
+                    background-color: #007bff; color: white; text-align: right;
+                {% else %}
+                    background-color: #f1f1f1; color: black; text-align: left;
+                {% endif %}">
+                <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+            </p>
+
+            <!-- Hiển thị tất cả ảnh liên kết với tin nhắn -->
+            {% for image in message.images.all %}
+                <img style="width: 200px;height: 80px;" src="{{ image.image_chat.url }}" alt="Ảnh tin nhắn" class="chat-image" onclick="openImage('{{ image.image_chat.url }}')">
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Form gửi tin nhắn -->
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <textarea name="content" rows="3" placeholder="Nhập tin nhắn..."></textarea>
+    <input type="file" name="image_chat" accept="image/*" multiple onchange="this.form.submit()">
+    <button type="submit">Gửi</button>
+</form>
+
+<!-- Link file JS -->
+<script src="{% static 'js/chat.js' %}"></script>
+{% endblock chat %}

@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- css -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    <title>Document</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{% url 'user_home' %}"><img style="width: 60px;" src="{% static "img/logo.jpg" %}" alt=""></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavDropdown" style="padding-left: 75%;">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#"></a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Thông Tin
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                  <li><a class="dropdown-item" href="{% url 'user_check_booking' %}">Vé Đang Đặt</a></li>
+                  <li><a class="dropdown-item" href="{% url 'putbook' %}">Vé Đã Đặt</a></li>
+                  <li><a class="dropdown-item" href="{% url 'user_notification' %}">Thông Báo</a></li>
+                  <li><a class="dropdown-item" href="{% url 'user_like' %}">Đã Thích</a></li>
+                  <li><a class="dropdown-item" href="{% url 'user_chat_list' %}">Tin Nhắn</a></li>
+                </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                   Chào : {{ request.user.username }}
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                  <li><a class="dropdown-item" href="{% url 'edit_user' %}">thông tin cá nhân</a></li>
+                  <li><a class="dropdown-item" href="{% url 'logout' %}">Đăng Xuất</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      
+      {% block home %}{% endblock home %}
+      {% block detail %}{% endblock detail %}
+      {% block payment %}{% endblock payment %}
+      {% block putbook %}{% endblock putbook %}
+      {% block search_home %}{% endblock search_home %}
+      {% block edit_user %}{% endblock edit_user %}
+      {% block checkbook %}{% endblock checkbook %}
+      {% block notification %}{% endblock notification %}
+      {% block detailresort %}{% endblock detailresort %}
+      {% block chat %}{% endblock chat %}
+      {% block chat_list %}{% endblock chat_list %}
+      {% block user_like %}{% endblock user_like %}
+
+      {% block danang %}{% endblock danang %}
+      {% block hcm %}{% endblock hcm %}
+      {% block hanoi %}{% endblock hanoi %}
+      
+
+
+
+<!-- Biểu tượng chatbot -->
+<div id="chatbot-icon" onclick="toggleChatbot()">💬</div>
+
+<!-- Khung chat -->
+<div id="chatbox" class="hidden">
+    <div id="chat-header">Chatbot Hỗ Trợ</div>
+    <div id="messages"></div>
+    <input type="text" id="user-input" placeholder="Nhập tin nhắn..." onkeypress="handleEnter(event)">
+    <button onclick="sendMessage()">Gửi</button>
+</div>
+
+<style>
+  /* Biểu tượng chat */
+  #chatbot-icon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background-color: #007bff;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 24px;
+  }
+
+  /* Khung chat */
+  #chatbox {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 300px;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow-y: auto; /* Đảm bảo cuộn tin nhắn */
+    display: block;
+    max-height: 400px; /* Giới hạn chiều cao tránh tràn */
+}
+
+  /* Tiêu đề chat */
+  #chat-header {
+      background-color: #007bff;
+      color: white;
+      padding: 8px;
+      text-align: center;
+      border-radius: 10px 10px 0 0;
+      font-weight: bold;
+  }
+
+  /* Vùng hiển thị tin nhắn */
+  #messages {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+  .hidden { display: none !important; }
+</style>
+
+<script>
+  // Hàm bật/tắt chatbot
+  function toggleChatbot() {
+    var chatbox = document.getElementById("chatbox");
+    chatbox.classList.toggle("hidden");
+
+    // Kiểm tra nếu bị lỗi hiển thị ngoài màn hình
+    chatbox.style.right = "20px"; // Đặt lại vị trí
+}
+
+
+  // Hàm gửi tin nhắn khi nhấn Enter
+  function handleEnter(event) {
+      if (event.key === "Enter") {
+          sendMessage();
+      }
+  }
+
+  // Hàm gửi tin nhắn
+  function sendMessage() {
+    var userMessage = document.getElementById("user-input").value.trim();
+    var messagesDiv = document.getElementById("messages");
+
+    if (userMessage === "") return; // Không gửi tin nhắn rỗng
+
+    messagesDiv.innerHTML += `<p style="color: blue;"><strong>Bạn:</strong> ${userMessage}</p>`;
+
+    fetch('/chatbot/', {
+        method: 'POST',
+        body: JSON.stringify({ message: userMessage }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.response) {
+            messagesDiv.innerHTML += `<p style="color: green;"><strong>Bot:</strong> ${data.response}</p>`;
+        } else {
+            messagesDiv.innerHTML += `<p style="color: red;">⚠ Lỗi: Bot không phản hồi.</p>`;
+        }
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    })
+    .catch(error => {
+        messagesDiv.innerHTML += `<p style="color: red;">⚠ Lỗi kết nối đến chatbot.</p>`;
+        console.error("Lỗi:", error);
+    });
+
+    document.getElementById("user-input").value = "";
+}
+
+</script>
+
+
+   
+</body>
+</html>

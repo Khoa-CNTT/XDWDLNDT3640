@@ -1,0 +1,23 @@
+{% extends "user/base.html" %}
+
+{% block chat_list %}
+<h1>Danh sách resort yêu thích</h1>
+{% if favorite_resorts %}
+    <ul>
+        {% for resort in favorite_resorts %}
+            <li>
+                <h2>{{ resort.name }}</h2>
+                <p>{{ resort.description }}</p>
+                <a href="{% url 'resort_detail' resort.id %}">Xem chi tiết</a>
+                <!-- Nút Bỏ yêu thích -->
+                <form method="POST" action="{% url 'toggle_favorite' resort.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Bỏ yêu thích</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Hiện chưa có resort nào được yêu thích.</p>
+{% endif %}
+{% endblock chat_list %}

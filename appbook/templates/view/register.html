@@ -1,0 +1,80 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image:url('{% static "img/bien.jpg" %}');
+        }
+        .register-container {
+            width: 500px;
+            height: 800px;
+            padding: 16px;
+            background-color: rgb(117, 212, 221);
+            margin: 0 auto;
+            margin-top: 100px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type=text], input[type=password],input[type=email] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        
+        #id_email{
+            width: 500px;
+            height: 40px;
+        }
+        button {
+            background-color:rgb(32, 141, 48);
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    
+    <form class="form_register" method="POST" action="">
+        {% csrf_token %}
+        <div class="register-container">
+            <img src="{% static "img/logo.jpg" %}" alt="Ảnh" style="padding-left: 180px;width: 140px;">
+            <br>
+            <label for="username">Tên Tài Khoản:</label>
+            <input type="text" placeholder="Nhập Tài Khoản" name="username" required><br>
+            <label for="email">Email:</label>
+            <input type="email" placeholder="Nhập Email" name="email" required><br>
+            <label for="last_name">Họ:</label>
+            <input type="text" placeholder="Nhập Họ" name="last_name" required><br>
+            <label for="first_name">Tên:</label>
+            <input type="text" placeholder="Nhập Tên" name="first_name" required><br>
+            <label for="password1">Mật Khẩu:</label>
+            <input type="password" placeholder="Nhập Mật Khẩu" name="password1" required><br>
+            <label for="password2">Nhập Lại Mật Khẩu:</label>
+            <input type="password" placeholder="Nhập Lại Mật Khẩu" name="password2" required><br>
+            <br>
+            {% if error %}
+                    <p style="color: red;">{{ error }}</p>
+            {% endif %}
+            <button type="submit" style="color: rgb(145, 225, 111);"><b style="font-size: 17px;">Đăng Ký</b></button>
+            <p style="padding-left: 130px;">Tôi Đã Có Tài Khoản. <a href="{% url 'login' %}">Đăng Nhập</a></p>
+        </div>
+    </form>
+    
+    
+</body>
+</html>
+
+    
+   

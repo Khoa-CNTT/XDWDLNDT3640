@@ -1,0 +1,68 @@
+{% extends "resort/base.html" %}
+{% load static %}
+{% block detail %}
+<h2>{{ resort.name }}</h2>
+<p><strong>Quản lý resort:</strong> {{ resort.manager.name }}</p>
+<p><strong>Mô tả:</strong> {{ resort.description }}</p>
+<p><strong>Giá mỗi ngày:</strong> {{ resort.price_per_night|floatformat:0 }}K VNĐ</p>
+<p><strong>Loại Phòng : </strong> {{ resort.room_type_capacity }} Người/Phòng</p>
+<p><strong>Số phòng mỗi ngày:</strong> {{ resort.max_rooms }}</p>
+<p><strong>Điểm trung bình:</strong> {{ resort.get_average_rating }}</p>
+<!-- Hiển thị ảnh -->
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+    {% for image in resort.images.all %}
+        <img src="{{ image.image.url }}" alt="Ảnh resort" style="width: 200px; height: auto; border: 1px solid #ddd;">
+    {% endfor %}
+</div>
+
+<!-- Khu vực bình luận -->
+<h3>Bình luận về resort</h3>
+
+<!-- Form bình luận -->
+<form method="POST">
+    {% csrf_token %}
+    <textarea name="content" rows="3" placeholder="Nhập bình luận của bạn..." required></textarea>
+    <br>
+    <button type="submit">Đăng bình luận</button>
+</form>
+
+<h4>Danh sách bình luận</h4>
+{% if comments %}
+    {% for comment in comments %}
+        <div style="border-bottom: 1px solid #ddd; padding: 10px;">
+            <p><strong>{{ comment.user.username }}:</strong> {{ comment.content }}</p>
+            <p style="font-size: 12px; color: gray;">{{ comment.created_at }}</p>
+
+            <!-- Nút xóa bình luận (chỉ hiển thị nếu là chủ sở hữu) -->
+            {% if comment.user == request.user %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                    <button type="submit" name="delete_comment">Xóa</button>
+                </form>
+            {% endif %}
+
+            <!-- Form trả lời bình luận -->
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                <textarea name="content" rows="2" placeholder="Trả lời bình luận..." required></textarea>
+                <button type="submit" name="reply_submit">Trả lời</button>
+            </form>
+
+            <!-- Hiển thị phản hồi -->
+            {% for reply in comment.replies.all %}
+                <div style="margin-left: 20px; border-left: 2px solid #ddd; padding-left: 10px;">
+                    <p><strong>{{ reply.user.username }}:</strong> {{ reply.content }}</p>
+                    <p style="font-size: 12px; color: gray;">{{ reply.created_at }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Chưa có bình luận nào.</p>
+{% endif %}
+
+
+
+{% endblock detail %}

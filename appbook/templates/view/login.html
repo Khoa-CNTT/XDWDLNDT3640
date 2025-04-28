@@ -1,0 +1,72 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image:url('{% static "img/bien.jpg" %}');
+        }
+        .register-container {
+            width: 500px;
+            height: 700px;
+            padding: 16px;
+            background-color: rgb(194, 241, 244);
+            margin: 0 auto;
+            margin-top: 100px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type=text], input[type=password],input[type=email] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        
+        #id_email{
+            width: 500px;
+            height: 40px;
+        }
+        button {
+            background-color:rgb(32, 141, 48);
+            color: rgb(215, 22, 22);
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+<form class="form_register" method="POST" action="">
+    {% csrf_token %}
+    <div class="register-container">
+        <img src="{% static "img/logo.jpg" %}" alt="Ảnh" style="padding-left: 180px;width: 140px;">
+        <br>
+
+        <label for="uname"><b>Tài Khoản</b></label>
+        <input type="text" placeholder="Nhập Tài Khoản" name="username" required>
+
+        <label for="psw"><b>Mật Khẩu</b></label>
+        <input type="password" placeholder="Nhập Mật Khẩu" name="password" required>
+
+        <p style="padding-left: 130px;">Tôi Chưa Có Tài Khoản. <a href="{% url 'register' %}" style="color: blue;">Đăng Ký</a></p>
+        <button type="submit"><b style="font-size: 17px;">Đăng Nhập</b></button>
+        {% for message in messages %}
+        <p id = 'message' style='color:red;padding-left: 160px'>Tài Khoản Chưa Đúng</p>
+        {% endfor %}
+    </div>
+</form>
+
+</body>
+</html>
+
+    
+   

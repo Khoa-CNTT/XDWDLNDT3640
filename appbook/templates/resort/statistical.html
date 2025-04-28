@@ -1,0 +1,41 @@
+{% extends "resort/base.html" %}
+
+{% block statistical %}
+<h1>Thống kê Đặt Phòng</h1>
+
+<!-- Form chọn năm/tháng/ngày -->
+<form method="GET" action="{% url 'resort_statistical' %}">
+    <label for="year">Chọn năm:</label>
+    <select name="year">
+        {% for y in years %}
+            <option value="{{ y }}">{{ y }}</option>
+        {% endfor %}
+    </select>
+    
+    <label for="month">Chọn tháng:</label>
+    <select name="month">
+        <option value="">-- Không chọn --</option>
+        {% for m in months %}
+            <option value="{{ m }}">{{ m }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="day">Chọn ngày:</label>
+    <select name="day">
+        <option value="">-- Không chọn --</option>
+        {% for d in days %}
+            <option value="{{ d }}">{{ d }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Xem thống kê</button>
+</form>
+
+<!-- Hiển thị thống kê cho từng resort -->
+{% for resort in resorts %}
+    <h2>Thống kê : {{ selected_date }} của Resort : {{ resort.name }}</h2>
+    <p><strong>Tổng số phòng đã đặt:</strong> {{ resort.total_rooms }}</p>
+    <p><strong>Tổng doanh thu:</strong> {{ resort.total_income|floatformat:0 }}K VNĐ</p>
+{% endfor %}
+
+{% endblock statistical%}

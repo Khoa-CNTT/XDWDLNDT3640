@@ -1,0 +1,19 @@
+{% extends "resort/base.html" %}
+
+{% block onbook %}
+<h1>Thông tin Đặt Phòng</h1>
+
+{% for room in confirmed_bookings|dictsortreversed:"created_at" %}
+    <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+        <p><strong>ID vé:</strong> {{ room.id_room }}</p>
+        <p><strong>Resort:</strong> {{ room.resort.name }}</p>
+        <p><strong>Khách hàng:</strong> {{ room.user.username }}</p>
+        <p><strong>Ngày đến:</strong> {{ room.start_date }}</p>
+        <p><strong>Ngày đi:</strong> {{ room.end_date }}</p>
+        <p><strong>Số phòng:</strong> {{ room.num_rooms }}</p>
+        <p><strong>Loại phòng:</strong> {{ room.resort.room_type_capacity }} người/phòng</p>
+    </div>
+{% endfor %}
+
+
+{% endblock %}

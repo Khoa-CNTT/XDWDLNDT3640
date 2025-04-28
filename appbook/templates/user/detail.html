@@ -1,0 +1,172 @@
+{% extends "user/base.html" %}
+{% load static %}
+{% block detail %}
+
+<h1>Chi tiết Resort</h1>
+
+{% if error %}
+<p style="color: red;">{{ error }}</p>
+{% endif %}
+
+<h2>Quản Lý Resort : <a href="{% url 'user_detail_resort' resort.manager.id %}">{{ resort.manager.name }}</a></h2>
+<p><strong>Resort:</strong> {{ resort.name }}</p>
+<p><strong>Mô tả:</strong> {{ resort.description }}</p>
+<p><strong>Giá mỗi ngày:</strong> <span id="price">{{ resort.price_per_night|floatformat:0 }}</span>K VNĐ</p>
+<p><strong>Loại Phòng : </strong> {{ resort.room_type_capacity }} Người/Phòng</p>
+<h3>Hỗ trợ khách hàng</h3>
+<a href="{% url 'user_chat' resort.manager.user.id %}" class="bg-blue-600 text-red px-4 py-2 rounded">Phản hồi với quản lý</a>
+<h3>Đánh giá Resort</h3>
+<p><strong>Điểm trung bình:</strong> {{ resort.get_average_rating }}</p> <!-- Hiển thị điểm đánh giá trung bình -->
+{% comment %} đánh giá {% endcomment %}
+<form method="POST">
+    {% csrf_token %}
+    <label for="score">Chọn đánh giá:</label>
+    <select name="score" required>
+        <option value="1">1 sao</option>
+        <option value="2">2 sao</option>
+        <option value="3">3 sao</option>
+        <option value="4">4 sao</option>
+        <option value="5">5 sao</option>
+    </select>
+    <button type="submit" name="submit_rating">Gửi đánh giá</button>
+</form>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+    {% for image in resort.images.all %}
+        <img src="{{ image.image.url }}" alt="Ảnh resort" style="width: 200px; height: auto; border: 1px solid #ddd;">
+    {% endfor %}
+</div>
+
+<h3>Đặt phòng</h3>
+<form method="POST">
+    {% csrf_token %}
+    
+    <label for="start_date">Ngày đến:</label><br>
+    <input type="date" id="start_date" name="start_date" min="{{ min_checkin_date }}" required><br><br>
+
+    <label for="end_date">Ngày đi:</label><br>
+    <input type="date" id="end_date" name="end_date" required><br><br>
+
+    <label for="available_rooms">Số phòng còn lại:</label><br>
+    <input type="text" id="available_rooms" readonly><br><br>
+
+    <label for="num_rooms">Số phòng muốn đặt:</label><br>
+    <input type="number" id="num_rooms" name="num_rooms" min="1" required><br><br>
+
+    <label for="total_price">Tổng tiền:</label><br>
+    <input type="text" id="total_price" readonly><br><br>
+
+    <button type="submit" name="booking_submit">Xác nhận</button>
+</form>
+
+
+
+<!-- Form bình luận -->
+<h3>Bình luận về resort</h3>
+
+<!-- Form bình luận -->
+<form method="POST">
+    {% csrf_token %}
+    <textarea name="content" rows="3" placeholder="Nhập bình luận của bạn..." required></textarea>
+    <br>
+    <button type="submit" name="comment_submit">Đăng bình luận</button>
+</form>
+
+<h4>Danh sách bình luận</h4>
+{% if comments %}
+    {% for comment in comments %}
+        <div style="border-bottom: 1px solid #ddd; padding: 10px;">
+            <p><strong>{{ comment.user.username }}:</strong> {{ comment.content }}</p>
+            <p style="font-size: 12px; color: gray;">{{ comment.created_at }}</p>
+
+            <!-- Nút xóa bình luận (chỉ hiển thị nếu là chủ sở hữu) -->
+            {% if comment.user == request.user %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                    <button type="submit" name="delete_comment">Xóa</button>
+                </form>
+            {% endif %}
+
+            <!-- Form trả lời bình luận -->
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                <textarea name="content" rows="2" placeholder="Trả lời bình luận..." required></textarea>
+                <button type="submit" name="reply_submit">Trả lời</button>
+            </form>
+
+            <!-- Hiển thị phản hồi -->
+            {% for reply in comment.replies.all %}
+                <div style="margin-left: 20px; border-left: 2px solid #ddd; padding-left: 10px;">
+                    <p><strong>{{ reply.user.username }}:</strong> {{ reply.content }}</p>
+                    <p style="font-size: 12px; color: gray;">{{ reply.created_at }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Chưa có bình luận nào.</p>
+{% endif %}
+
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let today = new Date();
+        today.setDate(today.getDate() + 1); // Ngày đến phải sau ngày hôm nay
+
+        let minDate = today.toISOString().split("T")[0];
+        document.getElementById("start_date").setAttribute("min", minDate);
+
+        document.getElementById("start_date").addEventListener("change", function() {
+            let startDate = new Date(this.value);
+            let minCheckoutDate = new Date(startDate);
+            minCheckoutDate.setDate(startDate.getDate() + 1);
+
+            document.getElementById("end_date").setAttribute("min", minCheckoutDate.toISOString().split("T")[0]);
+        });
+
+        document.getElementById("end_date").addEventListener("change", function() {
+            let startDate = document.getElementById("start_date").value;
+            let endDate = this.value;
+        
+            if (startDate && endDate) {
+                fetch(`/api/get_available_rooms/?resort_id={{ resort.id }}&start_date=${startDate}&end_date=${endDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("available_rooms").value = data.available_rooms;
+                    document.getElementById("num_rooms").setAttribute("max", data.available_rooms);
+                });
+            }
+        });
+        
+
+        document.getElementById("num_rooms").addEventListener("input", function() {
+            let numRooms = parseInt(this.value);
+            let availableRooms = parseInt(document.getElementById("available_rooms").value);
+            
+            if (numRooms > availableRooms) {
+                alert("Số phòng vượt quá số lượng có sẵn!");
+                this.value = availableRooms;
+            }
+
+            let pricePerNight = parseInt(document.getElementById("price").innerText);
+            let startDate = new Date(document.getElementById("start_date").value);
+            let endDate = new Date(document.getElementById("end_date").value);
+            let totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+
+            document.getElementById("total_price").value = (numRooms * totalDays * pricePerNight) + "K VNĐ";
+        });
+    });
+</script>
+
+
+
+
+
+
+
+{% endblock detail %}

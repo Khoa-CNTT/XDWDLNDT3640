@@ -1,0 +1,22 @@
+{% extends "user/base.html" %}
+
+{% block putbook %}
+<h1>Danh sách phòng đã đặt gần đây:</h1>
+
+{% if booked_rooms %}
+    {% for room in booked_rooms|dictsortreversed:"created_at" %}
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            <p><strong>ID Vé:</strong> {{ room.id_room }}</p>
+            <p><strong>Resort:</strong> {{ room.resort.name }}</p>
+            <p><strong>Ngày đến:</strong> {{ room.start_date }}</p>
+            <p><strong>Ngày đi:</strong> {{ room.end_date }}</p>
+            <p><strong>Tổng số phòng:</strong> {{ room.num_rooms }}</p>
+            <p><strong>Loại phòng:</strong> {{ room.resort.room_type_capacity }} người/phòng</p>
+            <p><strong>Tổng tiền:</strong> {{ room.total_price|floatformat:0 }}K VNĐ</p>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Bạn chưa có đặt phòng nào được xác nhận.</p>
+{% endif %}
+
+{% endblock %}

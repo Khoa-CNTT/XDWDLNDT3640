@@ -1,0 +1,34 @@
+{% extends "resort/base.html" %}
+{% block editroom %}
+
+<h2>Chỉnh sửa Resort</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="name">Tên resort:</label><br>
+    <input type="text" name="name" value="{{ resort.name }}" required><br><br>
+
+    <label for="description">Mô tả:</label><br>
+    <textarea name="description" required>{{ resort.description }}</textarea><br><br>
+
+    <label for="room_type_capacity">Loại phòng (số người mỗi phòng chứa):</label><br>
+    <input type="number" name="room_type_capacity" value="{{ resort.room_type_capacity }}" min="1" required><br><br>
+
+    <label for="price_per_day">Giá mỗi ngày:</label><br>
+    <input type="number" name="price_per_day" value="{{ resort.price_per_night }}" min="1" step="1" required><br><br>
+
+    <label for="max_rooms">Số phòng tối đa mỗi ngày:</label><br>
+    <input type="number" name="max_rooms" value="{{ resort.max_rooms }}" min="1" required><br><br>
+
+    <label for="images">Tải lên hình ảnh (tối đa 5, ảnh cũ sẽ bị thay thế):</label><br>
+    <input type="file" name="images" multiple accept="image/*"><br><br>
+
+    <label for="is_hidden">Ẩn resort:</label>
+    <input type="checkbox" name="is_hidden" {% if resort.is_hidden %}checked{% endif %}>
+
+    <button type="submit">Cập nhật</button>
+</form>
+
+<a href="{% url 'resort_home' %}" class="text-blue-600 mt-4 inline-block">← Quay lại trang quản lý</a>
+
+{% endblock %}

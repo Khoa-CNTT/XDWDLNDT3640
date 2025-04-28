@@ -1,0 +1,64 @@
+{% extends "user/base.html" %}
+{% load static %}
+
+{% block edit_user %}
+<h1>Chỉnh sửa thông tin cá nhân</h1>
+
+<!-- Hiển thị thông báo -->
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: {% if message.tags == 'success' %}green{% else %}red{% endif %};">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+<!-- Form cập nhật thông tin cá nhân -->
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <label for="username">Tên đăng nhập:</label>
+    <p>{{ user.username }}</p>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" value="{{ user.email }}" required><br>
+
+    <label for="first_name">Họ:</label>
+    <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}"><br>
+
+    <label for="last_name">Tên:</label>
+    <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}"><br>
+
+    <label for="birth_date">Ngày sinh:</label>
+    <input type="date" id="birth_date" name="birth_date" value="{{ user.userprofile.birth_date }}"><br>
+
+    <label for="gender">Giới tính:</label>
+    <select id="gender" name="gender">
+        <option value="T" {% if user.userprofile.gender == "T" %}selected{% endif %}>Trai</option>
+        <option value="G" {% if user.userprofile.gender == "G" %}selected{% endif %}>Gái</option>
+        <option value="B" {% if user.userprofile.gender == "B" %}selected{% endif %}>Chưa xác định</option>
+    </select><br>
+
+    <label for="profile_image">Ảnh đại diện:</label>
+    <input type="file" id="profile_image" name="profile_image"><br>
+
+    <button type="submit" name="update_info">Cập nhật thông tin</button>
+</form>
+
+<hr>
+
+<h2>Thay đổi mật khẩu</h2>
+<form method="POST">
+    {% csrf_token %}
+    
+    <label for="old_password">Mật khẩu cũ:</label>
+    <input type="password" id="old_password" name="old_password" required><br>
+
+    <label for="new_password">Mật khẩu mới:</label>
+    <input type="password" id="new_password" name="new_password" required><br>
+
+    <label for="confirm_password">Xác nhận mật khẩu mới:</label>
+    <input type="password" id="confirm_password" name="confirm_password" required><br>
+
+    <button type="submit" name="update_password">Đổi mật khẩu</button>
+</form>
+
+{% endblock edit_user %}

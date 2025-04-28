@@ -1,0 +1,45 @@
+{% extends 'resort/base.html' %}
+
+{% block editresort %}
+<h2>Chỉnh sửa thông tin quản lý resort</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="name">Tên quản lý resort:</label><br>
+        <input type="text" name="name" class="form-control" value="{{ resort_manager.name }}" required><br><br>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Mô tả:</label><br>
+        <textarea name="description" class="form-control" required>{{ resort_manager.description }}</textarea><br><br>
+    </div>
+
+    <div class="form-group">
+        <label for="address">Địa chỉ:</label><br>
+        <select name="address" class="form-control" required>
+            <option value="Đà Nẵng" {% if resort_manager.address == "Đà Nẵng" %}selected{% endif %}>Đà Nẵng</option>
+            <option value="Hà Nội" {% if resort_manager.address == "Hà Nội" %}selected{% endif %}>Hà Nội</option>
+            <option value="HCM" {% if resort_manager.address == "HCM" %}selected{% endif %}>TP Hồ Chí Minh</option>
+        </select><br><br>
+    </div>
+    <div class="form-group">
+        <label for="images">Tải lên hình ảnh (tối đa 5):</label><br>
+        <input type="file" name="images" multiple accept="image/*"><br><br>
+        
+    </div>
+
+    <div class="form-group">
+        <label for="qr_code">Mã QR:</label><br>
+        <input type="file" name="qr_code" class="form-control"><br><br>
+        {% if resort_manager.qr_code %}
+        <img src="{{ resort_manager.qr_code.url }}" alt="Mã QR" width="100">
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+</form>
+
+<a href="{% url 'resort_home' %}" class="mt-4">← Quay lại trang quản lý</a>
+
+{% endblock editresort%}

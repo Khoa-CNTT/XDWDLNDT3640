@@ -1,0 +1,10 @@
+    {% extends "user/base.html" %}
+
+    {% block chat_list %}
+    <h1>Danh sách Quản lý Resort bạn đã nhắn tin</h1>
+    <ul>
+        {% for manager in managers %}
+            <li><a href="{% url 'user_chat' manager.id %}">{{ manager.username }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endblock chat_list%}

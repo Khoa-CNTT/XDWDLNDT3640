@@ -1,0 +1,31 @@
+{% extends "user/base.html" %}
+
+{% block payment %}
+<h1>Thông tin Thanh Toán</h1>
+
+<p><strong>Quản lý resort:</strong> {{ booking.resort.manager.name }}</p>
+<p><strong>Resort:</strong> {{ booking.resort.name }}</p>
+<p><strong>Khách hàng:</strong> {{ booking.user.username }}</p>
+<p><strong>Email:</strong> {{ booking.user.email }}</p>
+<p><strong>Ngày đến:</strong> {{ booking.start_date }}</p>
+<p><strong>Ngày đi:</strong> {{ booking.end_date }}</p>
+<p><strong>Số phòng:</strong> {{ booking.num_rooms }}</p>
+<p><strong>Tổng tiền:</strong> {{ booking.total_price|floatformat:0 }}K VNĐ</p>
+<p><strong>ID thanh toán:</strong> {{ booking.payment_id }}</p>
+
+<h5>Quét mã QR để thanh toán</h5>
+<h6 style="color: red;">*Lưu ý nội dung thanh toán là ID Thanh Toán</h6>
+<img src="{{ booking.qr_code.url }}" alt="QR Code thanh toán" style="width: 200px; height: auto; border: 1px solid #ddd;">
+<!-- Nút Huy -->
+<form>
+    
+    <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded"><a href="{% url 'user_home' %}">Hủy đặt phòng</a></button>
+</form>
+
+<!-- Nút xác nhận -->
+<form method="POST" action="{% url 'confirm_payment' booking.id %}">
+    {% csrf_token %}
+    <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded">Xác nhận</button>
+</form>
+
+{% endblock payment %}
