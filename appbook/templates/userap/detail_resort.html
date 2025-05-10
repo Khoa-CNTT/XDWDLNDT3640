@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<a href="{% url 'userap_home' %}">quay lai</a>
+<h1>Thông tin Quản lý Resort</h1>
+
+<h2>{{ manager.name }}</h2>
+<p><strong>Email:</strong> {{ manager.user.email }}</p>
+<p><strong>Địa chỉ:</strong> {{ manager.address }}</p>
+<p><strong>Mô tả:</strong> {{ manager.description }}</p>
+<h3>Hình ảnh của Quản lý Resort</h3>
+{% if manager.images.all %}
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+        {% for image in manager.images.all %}
+            <img src="{{ image.image.url }}" alt="Ảnh quản lý" style="width: 200px; height: auto; border: 1px solid #ddd;">
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Quản lý này chưa có ảnh nào.</p>
+{% endif %}
+
+<h3>Danh sách Resort Quản lý</h3>
+{% if resorts %}
+    {% for resort in resorts %}
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            <p><strong>Resort:</strong> {{ resort.name }}</p>
+            <p><strong>Mô tả:</strong> {{ resort.description }}</p>
+            <p><strong>Giá mỗi ngày:</strong> {{ resort.price_per_night|floatformat:0 }}K VNĐ</p>
+            <p><strong>Loại Phòng :</strong> {{ resort.room_type_capacity }} Người/Phòng</p>
+            <p><strong>Số phòng mỗi ngày :</strong> {{ resort.max_rooms }}</p>
+            <p><strong>Điểm trung bình:</strong> {{ resort.get_average_rating }}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                {% for image in resort.images.all %}
+                    <img src="{{ image.image.url }}" alt="Ảnh resort" style="width: 200px; height: auto; border: 1px solid #ddd;">
+                {% endfor %}
+            </div>
+            <td><a href="{% url 'userap_detail' resort.id %}" class="btn btn-info">Xem chi tiết</a></td>
+            <!-- Nút xóa Resort -->
+            <form method="POST" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="resort_id" value="{{ resort.id }}">
+                <button type="submit" name="delete_resort" class="btn btn-danger">Xóa</button>
+            </form>
+
+
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Quản lý này chưa có resort nào.</p>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,45 @@
+{% extends 'userap/base.html' %}
+{% block home_user %}
+  <h1>Quản Lý Người Dùng</h1>
+  <p>Xin chào, {{ user_ap.user.username }}!</p>
+
+<h2>Tìm kiếm Người Dùng</h2>
+<form method="GET">
+    <input type="text" name="search" placeholder="Nhập Username...">
+    <button type="submit">Tìm kiếm</button>
+</form>
+
+<h2>Danh sách Người Dùng</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th> 
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+                <button onclick="deleteUser({{ user.id }})">Xóa</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    function deleteUser(userId) {
+        fetch(`/userap/delete-user/${userId}/`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();  // Cập nhật lại trang sau khi xóa
+            }
+        });
+    }
+</script>
+{% endblock home_user %}

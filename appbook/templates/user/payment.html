@@ -13,6 +13,16 @@
 <p><strong>Tổng tiền:</strong> {{ booking.total_price|floatformat:0 }}K VNĐ</p>
 <p><strong>ID thanh toán:</strong> {{ booking.payment_id }}</p>
 
+
+<h5>Quét mã QR Momo để thanh toán</h5>
+{% if momo_qr_url %}
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ momo_qr_url|urlencode }}" alt="Mã QR Momo" style="width: 200px; height: auto; border: 1px solid #ddd;">
+{% else %}
+    <p>Quản lý resort chưa cung cấp số Momo.</p>
+{% endif %}
+
+
+
 <h5>Quét mã QR để thanh toán</h5>
 <h6 style="color: red;">*Lưu ý nội dung thanh toán là ID Thanh Toán</h6>
 <img src="{{ booking.qr_code.url }}" alt="QR Code thanh toán" style="width: 200px; height: auto; border: 1px solid #ddd;">

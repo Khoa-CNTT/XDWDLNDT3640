@@ -18,7 +18,7 @@ urlpatterns = [
 
 
     path("api/get_available_rooms/", views.get_available_rooms, name="get_available_rooms"),
-    path("user/search_home/", views.search_home, name="search_home"),
+    
     
     path("user/edit/", views.edit_user, name="edit_user"),
 
@@ -65,6 +65,10 @@ urlpatterns = [
 
     path("resort/statistical/", views.resort_statistical, name="resort_statistical"),
 
+    path("resort/tax_report/", views.tax_report, name="tax_report"),
+
+    
+
     
     
     # Quản lý resort chat
@@ -75,5 +79,18 @@ urlpatterns = [
 
     # chatbot
     path('chatbot/', views.chatbot_response, name='chatbot'),
+    
+
+
+
+
+    # admin
+    path('userap/home/', views.userap_home, name='userap_home'),
+    path("userap/home/user/", views.userap_home_user, name="userap_home_user"),  # Trang danh sách Người Dùng
+    path('userap/delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
+    path('userap/delete-manager/<int:manager_id>/', views.delete_resort_manager, name='delete_resort_manager'),
+    path('userap/detail-resort/<int:manager_id>/', views.detail_resort, name='detail_resort'),
+    path('userap/detail/<int:resort_id>/', views.userap_detail, name='userap_detail'),  # Nếu đang hiển thị chi tiết Resort
+
     
 ]    

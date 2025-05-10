@@ -3,7 +3,7 @@
 {% block statistical %}
 <h1>Thống kê Đặt Phòng</h1>
 
-<!-- Form chọn năm/tháng/ngày -->
+<!-- Form chọn năm/tháng -->
 <form method="GET" action="{% url 'resort_statistical' %}">
     <label for="year">Chọn năm:</label>
     <select name="year">
@@ -20,22 +20,46 @@
         {% endfor %}
     </select>
 
-    <label for="day">Chọn ngày:</label>
-    <select name="day">
-        <option value="">-- Không chọn --</option>
-        {% for d in days %}
-            <option value="{{ d }}">{{ d }}</option>
-        {% endfor %}
-    </select>
-
     <button type="submit">Xem thống kê</button>
 </form>
 
-<!-- Hiển thị thống kê cho từng resort -->
+<!-- Hiển thị thống kê từng resort -->
+<p>Thống kê : {{ selected_date }}</p>
 {% for resort in resorts %}
-    <h2>Thống kê : {{ selected_date }} của Resort : {{ resort.name }}</h2>
+    
+    <h4>Resort : {{ resort.name }}</h4>
     <p><strong>Tổng số phòng đã đặt:</strong> {{ resort.total_rooms }}</p>
     <p><strong>Tổng doanh thu:</strong> {{ resort.total_income|floatformat:0 }}K VNĐ</p>
 {% endfor %}
+<h1>Biểu Đồ </h1>
+<!-- Canvas cho biểu đồ -->
+<canvas id="incomeChart"></canvas>
 
-{% endblock statistical%}
+<!-- Nhúng Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    var ctx = document.getElementById('incomeChart').getContext('2d');
+    var incomeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [{% for resort in resorts %}"{{ resort.name }}",{% endfor %}],
+            datasets: [{
+                label: 'Doanh thu (K VNĐ)',
+                data: [{% for resort in resorts %}{{ resort.total_income }},{% endfor %}],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock statistical %}

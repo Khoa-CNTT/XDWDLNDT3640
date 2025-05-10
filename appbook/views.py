@@ -43,6 +43,25 @@ def registerUser(request):
 
 
 # Đăng nhập
+# def login(request):
+#     if request.method == 'POST':
+#         form = AuthenticationForm(request, data=request.POST)
+#         if form.is_valid():
+#             user = form.get_user()
+#             auth_login(request, user)
+
+#             # Rẽ 3 hướng: admin / resort / user
+#             if user.is_superuser or user.is_staff:
+#                 return redirect('/admin/') #Admin
+
+#             try:
+#                 user.resortmanager  # Kiểm tra có liên kết không
+#                 return redirect('resort_home')
+#             except ObjectDoesNotExist:
+#                 return redirect('user_home')
+#     else:
+#         form = AuthenticationForm()
+#     return render(request, 'view/login.html', {'form': form})
 def login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -50,18 +69,29 @@ def login(request):
             user = form.get_user()
             auth_login(request, user)
 
-            # Rẽ 3 hướng: admin / resort / user
-            if user.is_superuser or user.is_staff:
-                return redirect('/admin/')  # Admin site
-
+            # Kiểm tra nếu User có UserAp
             try:
-                user.resortmanager  # Kiểm tra có liên kết không
+                user_ap = user.userap  
+                return redirect('userap_home')
+            except UserAp.DoesNotExist:
+                pass  # Nếu không phải UserAp, tiếp tục kiểm tra quyền khác
+
+            # Kiểm tra nếu là admin hệ thống
+            if user.is_superuser or user.is_staff:
+                return redirect('/admin/')  # Admin Django
+
+            # Kiểm tra nếu là ResortManager
+            try: 
+                user.resortmanager  
                 return redirect('resort_home')
             except ObjectDoesNotExist:
                 return redirect('user_home')
     else:
         form = AuthenticationForm()
+
     return render(request, 'view/login.html', {'form': form})
+
+
 
 # Đăng xuất
 def logoutUser(request):
@@ -80,27 +110,29 @@ def logoutUser(request):
 
 @login_required
 def user_home(request):
+    search_query = request.GET.get("search", "")  # Lấy dữ liệu tìm kiếm từ request
     resorts = Resort.objects.filter(is_hidden=False)  # Lọc các resort hiển thị
-    return render(request, 'user/home.html', {'resorts': resorts})
 
+    if search_query:
+        resorts = resorts.filter(models.Q(manager__name__icontains=search_query) | models.Q(name__icontains=search_query))
 
-@login_required
-def search_home(request):
-    query = request.GET.get("search", "").strip()
-    resorts = Resort.objects.filter(is_hidden=False)  # Lọc các resort hiển thị
-    if query:
-        resorts = resorts.filter(manager__name__icontains=query)  # Lọc theo tên quản lý
-    return render(request, "user/search_home.html", {"resorts": resorts, "query": query})
+    return render(request, "user/home.html", {
+        "resorts": resorts,
+        "search_query": search_query
+    })
+
 # yeu thich
 def toggle_favorite(request, resort_id):
     resort = get_object_or_404(Resort, id=resort_id)
 
     if request.user in resort.liked_users.all():
         resort.liked_users.remove(request.user)  # Bỏ yêu thích
+        return redirect('user_like')  
     else:
         resort.liked_users.add(request.user)  # Thêm yêu thích
+        return redirect('user_home')  
 
-    return redirect('user_home')  # Quay lại trang user_like
+    
 
 def user_like(request):
     favorite_resorts = request.user.liked_resorts.all()
@@ -467,6 +499,7 @@ def edit_user(request):
 def user_check_booking(request):
     bookings = Booking.objects.filter(user=request.user).order_by("-start_date")  # Hiển thị đơn đặt phòng của người dùng
     return render(request, "user/checkbook.html", {"bookings": bookings})
+
 @login_required
 def cancel_user_booking(request, payment_id):
     booking = get_object_or_404(Booking, payment_id=payment_id, user=request.user)  # Kiểm tra nếu đúng user mới hủy
@@ -476,20 +509,46 @@ def cancel_user_booking(request, payment_id):
     booking.delete()
     return redirect('user_check_booking')
 
+# Đà Nẵng
 @login_required
 def user_danang(request):
-    
-    resorts = Resort.objects.filter(manager__address="Đà Nẵng",is_hidden=False)
-    return render(request, "user/danang.html", {"resorts": resorts})
+    search_query = request.GET.get("search", "")  # Lấy dữ liệu tìm kiếm từ request
+    resorts = Resort.objects.filter(manager__address="Đà Nẵng", is_hidden=False)  # Lọc các resort ở Đà Nẵng
+
+    if search_query:
+        resorts = resorts.filter(Q(manager__name__icontains=search_query) | Q(name__icontains=search_query))  # Tìm kiếm theo tên quản lý hoặc tên resort
+
+    return render(request, "user/danang.html", {
+        "resorts": resorts,
+        "search_query": search_query
+    })
+# Hà Nội
 @login_required
 def user_hanoi(request):
-    resorts = Resort.objects.filter(manager__address="Hà Nội",is_hidden=False)
-    return render(request, "user/hanoi.html", {"resorts": resorts})
+    search_query = request.GET.get("search", "")  # Lấy dữ liệu tìm kiếm từ request
+    resorts = Resort.objects.filter(manager__address="Hà Nội", is_hidden=False)  # Lọc các resort ở Đà Nẵng
+
+    if search_query:
+        resorts = resorts.filter(Q(manager__name__icontains=search_query) | Q(name__icontains=search_query))  # Tìm kiếm theo tên quản lý hoặc tên resort
+
+    return render(request, "user/hanoi.html", {
+        "resorts": resorts,
+        "search_query": search_query
+    })
+# HCM
 @login_required
 def user_hcm(request):
-    resorts = Resort.objects.filter(manager__address="HCM",is_hidden=False)
-    return render(request, "user/hcm.html", {"resorts": resorts})
+    search_query = request.GET.get("search", "")  # Lấy dữ liệu tìm kiếm từ request
+    resorts = Resort.objects.filter(manager__address="HCM", is_hidden=False)  # Lọc các resort ở Đà Nẵng
 
+    if search_query:
+        resorts = resorts.filter(Q(manager__name__icontains=search_query) | Q(name__icontains=search_query))  # Tìm kiếm theo tên quản lý hoặc tên resort
+
+    return render(request, "user/HCM.html", {
+        "resorts": resorts,
+        "search_query": search_query
+    })
+# Xem ResortManager
 @login_required
 def user_detail_resort(request, manager_id):
     manager = get_object_or_404(ResortManager, id=manager_id)
@@ -673,7 +732,7 @@ def editroom(request, resort_id):
 
 
 
-
+# Edit Resort
 @login_required
 def edit_resort_manager(request):
     resort_manager = get_object_or_404(ResortManager, user=request.user)
@@ -696,6 +755,7 @@ def edit_resort_manager(request):
         form = ResortManagerForm(instance=resort_manager)
 
     return render(request, 'resort/editresort.html', {'form': form, 'resort_manager': resort_manager})
+
 
 
 
@@ -788,17 +848,12 @@ def confirm_booking(request, booking_id):
     return redirect("check_booking")
 
 
-
-
-
 # Thông Báo
 @login_required
 def user_notification(request):
     notifications = Notification.objects.filter(user=request.user).order_by("-created_at")  # Hiển thị tất cả thông báo
 
     return render(request, "user/Notification.html", {"notifications": notifications})
-
-
 
 
 # Thông Tin Vé Đã Xác Nhận
@@ -856,6 +911,19 @@ def resort_statistical(request):
         "days": range(1, 32)
     })
 
+@login_required
+def tax_report(request):
+    manager = request.user.resortmanager
+    taxes = Tax.objects.filter(manager=manager)
+
+    return render(request, "resort/tax.html", {"taxes": taxes})
+
+@login_required
+def confirm_tax(request, tax_id):
+    tax = Tax.objects.get(id=tax_id)
+    tax.status = "Đang đợi xác nhận"
+    tax.save()
+    return JsonResponse({"success": True})
 
 # -----------------------------------------------------------------------------------------------------------------------------
 # Chat
@@ -987,3 +1055,94 @@ def chatbot_response(request):
             return JsonResponse({"error": f"Lỗi nội bộ: {str(e)}"})
     
     return JsonResponse({"error": "Chỉ hỗ trợ phương thức POST"})
+
+# -ADmin----------------------------------------------------------------------------------------------------------
+@login_required
+def userap_home(request):
+    try:
+        user_ap = request.user.userap  # Truy xuất UserAp từ User
+    except UserAp.DoesNotExist:
+        return redirect('user_home')
+
+    search_query = request.GET.get("search", "")  # Lấy dữ liệu tìm kiếm từ request
+    resort_managers = ResortManager.objects.all()
+
+    if search_query:
+        resort_managers = resort_managers.filter(name__icontains=search_query)  # Lọc theo tên Quản Lý Resort
+
+    return render(request, "userap/home.html", {
+        "user_ap": user_ap,
+        "resort_managers": resort_managers,
+        "search_query": search_query
+    })
+
+
+
+@login_required
+def userap_home_user(request):
+    try:
+        user_ap = request.user.userap  # Truy xuất UserAp từ User
+    except UserAp.DoesNotExist:
+        return redirect('user_home')
+
+    search_query = request.GET.get("search", "")  # Lấy dữ liệu tìm kiếm từ request
+    users = User.objects.exclude(userap__isnull=False)
+
+    if search_query:
+        users = users.filter(username__icontains=search_query)  # Lọc theo Username
+
+    return render(request, "userap/home_user.html", {
+        "user_ap": user_ap,
+        "users": users,
+        "search_query": search_query
+    })
+
+
+@login_required
+def delete_user(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        user.delete()
+        return JsonResponse({"success": True})
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User không tồn tại"}, status=404)
+
+@login_required
+def delete_resort_manager(request, manager_id):
+    try:
+        manager = ResortManager.objects.get(id=manager_id)
+        manager.delete()
+        return JsonResponse({"success": True})
+    except ResortManager.DoesNotExist:
+        return JsonResponse({"error": "ResortManager không tồn tại"}, status=404)
+    
+@login_required
+def detail_resort(request, manager_id):
+    manager = get_object_or_404(ResortManager, id=manager_id)
+    resorts = Resort.objects.filter(manager=manager)
+
+    if request.method == "POST" and "delete_resort" in request.POST:
+        resort_id = request.POST.get("resort_id")
+        resort = get_object_or_404(Resort, id=resort_id)
+        resort.delete()
+        return redirect("detail_resort", manager_id=manager.id)
+
+    return render(request, "userap/detail_resort.html", {
+        "manager": manager,
+        "resorts": resorts
+    })
+
+@login_required
+def userap_detail(request, resort_id):
+    resort = get_object_or_404(Resort, id=resort_id)
+    comments = resort.comments.filter(parent__isnull=True).order_by("-created_at")  # Chỉ lấy bình luận gốc
+
+    if request.method == "POST":
+        if "delete_comment" in request.POST:  # Xóa bình luận
+            comment_id = request.POST.get("comment_id")
+            comment = get_object_or_404(Comment, id=comment_id, user=request.user)
+            comment.delete()
+            return redirect("userap_detail", resort_id=resort.id)
+
+
+    return render(request, "userap/userap_detail.html", {"resort": resort, "comments": comments})

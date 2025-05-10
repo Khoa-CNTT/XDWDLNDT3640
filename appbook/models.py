@@ -12,6 +12,9 @@ from django.db.models import Count
 from datetime import datetime
 from decimal import Decimal
 
+from django.contrib.auth.models import AbstractUser
+
+
 # Form đăng ký người dùng
 class CreateUserForm(UserCreationForm):
     class Meta:
@@ -35,6 +38,13 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+    
+class UserAp(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Liên kết với User
+    qr_app = models.ImageField(upload_to="qr_app/", null=True, blank=True)  # Hình ảnh QR Code
+
+    def __str__(self):
+        return self.user.username
 
 # Phân loại resort
 class Classify(models.Model):
@@ -57,9 +67,13 @@ class ResortManager(models.Model):
     description = models.TextField()
     address = models.CharField(max_length=50, choices=ADDRESS_CHOICES)  # Chuyển thành lựa chọn cố định
     qr_code = models.ImageField(upload_to='qr_codes/', null=True, blank=True)  # Thêm trường mã QR
+    momo_phone = models.CharField(max_length=15, null=True, blank=True)  # Số điện thoại Momo
+    
 
     def __str__(self):
         return f"QL Resort: {self.name}"
+    
+
 
 class ResortManagerImage(models.Model):
     manager = models.ForeignKey(ResortManager, on_delete=models.CASCADE, related_name='images')
@@ -196,8 +210,6 @@ class Bookroom(models.Model):
         return f"Bookroom for {self.resort.name} by {self.user.username}"
 
 
-
-
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     resort = models.ForeignKey(Resort, on_delete=models.CASCADE, related_name="comments")
@@ -218,8 +230,6 @@ class Notification(models.Model):
         return f"Thông báo cho {self.user.username}: {self.message}"
 
 
-
-
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
@@ -230,5 +240,20 @@ class Message(models.Model):
 class MessageImage(models.Model):
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="images")
     image_chat = models.ImageField(upload_to="chat_images/")
+
+
+class Tax(models.Model):
+    manager = models.ForeignKey(ResortManager, on_delete=models.CASCADE)
+    year = models.IntegerField()
+    month = models.IntegerField()
+    total_income = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.0'))
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.0'))
+    status = models.CharField(max_length=20, default="Chưa đóng")
+
+    def save(self, *args, **kwargs):
+        self.tax_amount = self.total_income * Decimal('0.1')  # 10% thuế
+        super().save(*args, **kwargs)
+
+
 
 

@@ -1,0 +1,47 @@
+{% extends 'userap/base.html' %}
+{% block home %}
+  <h1>Quản Lý Resort</h1>
+  <p>Xin chào, {{ user_ap.user.username }}!</p>
+
+<h2>Tìm kiếm Quản Lý Resort</h2>
+<form method="GET">
+    <input type="text" name="search" placeholder="Nhập tên Quản Lý...">
+    <button type="submit">Tìm kiếm</button>
+</form>
+
+<h2>Danh sách Quản Lý Resort</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Tên Quản Lý</th>
+            <th>Email</th>
+            <th>Resort</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for manager in resort_managers %}
+        <tr>
+          <td><a href="{% url 'detail_resort' manager.id %}">{{ manager.name }}</a></td>
+            <td>{{ manager.user.email }}</td>
+            <td>{{ manager.resorts.count }}</td>
+            <td>
+                <button onclick="deleteManager({{ manager.id }})">Xóa</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    function deleteManager(managerId) {
+        fetch(`/userap/delete-manager/${managerId}/`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();  // Cập nhật lại trang sau khi xóa
+            }
+        });
+    }
+</script>
+{% endblock home %}

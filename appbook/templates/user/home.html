@@ -3,8 +3,8 @@
 
 {% block home %}
 
-<form method="GET" action="{% url 'search_home' %}">
-    <input type="text" name="search" placeholder="Tìm kiếm theo tên quản lý..." value="{{ query }}">
+<form method="GET">
+    <input type="text" name="search" placeholder="Tìm kiếm theo tên quản lý hoặc resort..." value="{{ search_query }}">
     <button type="submit">Tìm kiếm</button>
 </form>
 <!-- Nút chọn địa điểm -->

@@ -1,0 +1,36 @@
+{% extends "resort/base.html" %}
+
+{% block tax_report %}
+<h1>Thống kê Thuế Resort</h1>
+
+<!-- Hiển thị thông tin thuế -->
+{% for tax in taxes %}
+    <h2>Thuế tháng {{ tax.month }}/{{ tax.year }}</h2>
+    <p><strong>Tổng doanh thu:</strong> {{ tax.total_income|floatformat:0 }}K VNĐ</p>
+    <p><strong>Thuế cần đóng (10%):</strong> {{ tax.tax_amount|floatformat:0 }}K VNĐ</p>
+    <p><strong>Tình trạng:</strong> <span id="tax-status-{{ tax.id }}">{{ tax.status }}</span></p>
+    
+    <!-- Nút xác nhận -->
+    {% if tax.status == "Chưa đóng" %}
+        <button onclick="confirmTax({{ tax.id }})">Xác nhận đóng thuế</button>
+    {% elif tax.status == "Đang đợi xác nhận" %}
+        <p style="color: orange;"><strong>Đang đợi xác nhận...</strong></p>
+    {% else %}
+        <p style="color: green;"><strong>Đã đóng</strong></p>
+    {% endif %}
+{% endfor %}
+
+<!-- Script xử lý xác nhận -->
+<script>
+    function confirmTax(taxId) {
+        fetch(`/confirm-tax/${taxId}/`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById(`tax-status-${taxId}`).innerText = "Đang đợi xác nhận";
+            }
+        });
+    }
+</script>
+
+{% endblock tax_report %}
